@@ -1,21 +1,3 @@
-step "Manual Intervention Required" {
-    condition = "Variable"
-    properties = {
-        Octopus.Step.ConditionVariableExpression = "#{unless Octopus.Deployment.Trigger.Name}True#{/unless}"
-    }
-
-    action {
-        action_type = "Octopus.Manual"
-        environments = ["Production"]
-        properties = {
-            Octopus.Action.Manual.BlockConcurrentDeployments = "False"
-            Octopus.Action.Manual.Instructions = "Review and approve"
-            Octopus.Action.Manual.ResponsibleTeamIds = "teams-managers"
-        }
-        worker_pool_variable = ""
-    }
-}
-
 step "Deploy Azure OctoPetShop Web Web App" {
     properties = {
         Octopus.Action.TargetRoles = "OctoPetShop-Web"
@@ -38,7 +20,7 @@ step "Deploy Azure OctoPetShop Web Web App" {
             Octopus.Action.RunOnServer = "true"
             OctopusUseBundledTooling = "True"
         }
-        worker_pool = "Windows"
+        worker_pool = "Hosted Windows"
 
         packages {
             acquisition_location = "Server"
@@ -73,7 +55,7 @@ step "Deploy OctoPetShop Product Service Web App" {
             Octopus.Action.RunOnServer = "true"
             OctopusUseBundledTooling = "True"
         }
-        worker_pool = "Windows"
+        worker_pool = "Hosted Windows"
 
         packages {
             acquisition_location = "Server"
@@ -108,7 +90,7 @@ step "Deploy OctoPetShop Shopping Cart Service Web App" {
             Octopus.Action.RunOnServer = "true"
             OctopusUseBundledTooling = "True"
         }
-        worker_pool = "Windows"
+        worker_pool = "Hosted Windows"
 
         packages {
             acquisition_location = "Server"
@@ -167,6 +149,6 @@ step "Run a Script" {
             Octopus.Action.Script.ScriptSource = "Inline"
             Octopus.Action.Script.Syntax = "PowerShell"
         }
-        worker_pool = "Windows"
+        worker_pool = "Hosted Windows"
     }
 }
