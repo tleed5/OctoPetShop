@@ -71,14 +71,15 @@ step "kustomize" {
 }
 
 step "kustomize-child" {
-    name = "Kustomize Child"
+    name = "Kustomize Parent"
     package_requirement = "AfterPackageAcquisition"
     properties = {
         Octopus.Action.TargetRoles = "AksCluster"
     }
 
-    action {
+    action "kustomize-child" {
         action_type = "kustomize"
+        name = "Kustomize Child One"
         properties = {
             Octopus.Action.RunOnServer = "true"
             OctopusUseBundledTooling = "False"
@@ -96,6 +97,41 @@ step "kustomize-child" {
 
             gitSource {
                 referenceId = "9c95a5e9-e51f-4823-b8c4-c3ef0ae2eb0f"
+                type = "project"
+            }
+
+            kubernetesObjectStatus {
+                enabled = true
+                timeout = 180
+                waitForJobs = false
+            }
+
+            substituteFiles {
+                filesToTarget = "k8s/kustomize/base/kustomization.yaml"
+            }
+        }
+    }
+
+    action "kustomize-child-two" {
+        action_type = "kustomize"
+        name = "Kustomize Child Two"
+        properties = {
+            Octopus.Action.RunOnServer = "true"
+            OctopusUseBundledTooling = "False"
+        }
+        step_package_version = "2.0.2"
+        worker_pool = "hosted-ubuntu"
+
+        container {
+            feed = "docker"
+            image = "octopuslabs/k8s-workertools:latest"
+        }
+
+        inputs {
+            overlayPath = "k8s/kustomize/overlays/#{Octopus.Environment.Name}"
+
+            gitSource {
+                referenceId = "da0354aa-2f56-422b-ba2b-0188667cfe38"
                 type = "project"
             }
 
