@@ -147,3 +147,48 @@ step "kustomize-child" {
         }
     }
 }
+
+step "kustomize-external-vcs" {
+    name = "Kustomize - External VCS"
+    package_requirement = "AfterPackageAcquisition"
+    properties = {
+        Octopus.Action.TargetRoles = "AksCluster"
+    }
+
+    action {
+        action_type = "kustomize"
+        step_package_version = "2.0.2"
+        worker_pool_variable = ""
+
+        git_dependencies {
+            default_branch = "master"
+            git_credential_id = "GitCredentials-1"
+            git_credential_type = "Library"
+            repository_uri = "https://github.com/tleed5/OctoPetShop.git"
+            step_package_inputs_reference_id = "b08276eb-7ace-44a2-a2ef-c3ed9f0b6e19"
+        }
+
+        inputs {
+            overlayPath = "k8s/kustomize/overlays/#{Octopus.Environment.Name}"
+
+            gitSource {
+                defaultBranch = "master"
+                gitCredential = "GitCredentials-1"
+                isAnonymous = false
+                referenceId = "b08276eb-7ace-44a2-a2ef-c3ed9f0b6e19"
+                type = "external"
+                url = "https://github.com/tleed5/OctoPetShop.git"
+            }
+
+            kubernetesObjectStatus {
+                enabled = true
+                timeout = 180
+                waitForJobs = false
+            }
+
+            substituteFiles {
+                filesToTarget = "k8s/kustomize/base/kustomization.yaml"
+            }
+        }
+    }
+}
