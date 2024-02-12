@@ -147,23 +147,3 @@ step "kustomize-child" {
         }
     }
 }
-
-step "deploy-raw-kubernetes-yaml" {
-    name = "Deploy raw Kubernetes YAML"
-    properties = {
-        Octopus.Action.TargetRoles = "AksCluster"
-    }
-
-    action {
-        action_type = "Octopus.KubernetesDeployRawYaml"
-        properties = {
-            Octopus.Action.GitRepository.FilePathFilters = "k8s/*"
-            Octopus.Action.GitRepository.Source = "Project"
-            Octopus.Action.Kubernetes.DeploymentTimeout = "180"
-            Octopus.Action.Kubernetes.ResourceStatusCheck = "True"
-            Octopus.Action.KubernetesContainers.CustomResourceYamlFileName = "k8s/*"
-            Octopus.Action.Script.ScriptSource = "GitRepository"
-        }
-        worker_pool_variable = ""
-    }
-}
