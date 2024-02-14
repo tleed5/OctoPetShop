@@ -47,7 +47,7 @@ step "kustomize-new" {
     action {
         action_type = "Octopus.Kubernetes.Kustomize"
         properties = {
-            Octopus.Action.GitRepository.Source = "Project"
+            Octopus.Action.GitRepository.Source = "External"
             Octopus.Action.Kubernetes.DeploymentTimeout = "180"
             Octopus.Action.Kubernetes.Kustomize.OverlayPath = "k8s/kustomize/overlays/#{Octopus.Environment.Name}"
             Octopus.Action.Kubernetes.ResourceStatusCheck = "True"
@@ -60,6 +60,13 @@ step "kustomize-new" {
         container {
             feed = "docker"
             image = "octopuslabs/k8s-workertools:latest"
+        }
+
+        git_dependencies {
+            default_branch = "master"
+            git_credential_id = "GitCredentials-1"
+            git_credential_type = "Library"
+            repository_uri = "https://github.com/tleed5/OctoPetShop.git"
         }
 
         packages "nginx" {
