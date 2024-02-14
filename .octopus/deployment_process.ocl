@@ -1,13 +1,20 @@
 step "kustomize" {
     name = "Kustomize"
-    package_requirement = "AfterPackageAcquisition"
     properties = {
         Octopus.Action.TargetRoles = "AksCluster"
     }
 
     action {
+        action_type = "Octopus.Kubernetes.Kustomize"
+        is_disabled = true
         properties = {
+            Octopus.Action.GitRepository.Source = "Project"
+            Octopus.Action.Kubernetes.DeploymentTimeout = "180"
+            Octopus.Action.Kubernetes.Kustomize.OverlayPath = "k8s/kustomize/overlays/#{Octopus.Environment.Name}"
+            Octopus.Action.Kubernetes.ResourceStatusCheck = "True"
+            Octopus.Action.KubernetesContainers.DeploymentWait = "False"
             Octopus.Action.RunOnServer = "true"
+            Octopus.Action.SubstituteInFiles.TargetFiles = "k8s/kustomize/base/kustomization.yaml"
             OctopusUseBundledTooling = "False"
         }
         worker_pool_variable = ""
@@ -28,30 +35,24 @@ step "kustomize" {
             feed = "docker"
             package_id = "octopuslabs/k8s-workertools"
         }
-
-        action_type = "Octopus.Kubernetes.Kustomize"
-        properties = {
-            Octopus.Action.GitRepository.Source = "Project"
-            Octopus.Action.Kubernetes.DeploymentTimeout = 180
-            Octopus.Action.Kubernetes.Kustomize.OverlayPath = "k8s/kustomize/overlays/#{Octopus.Environment.Name}"
-            Octopus.Action.Kubernetes.ResourceStatusCheck = true
-            Octopus.Action.KubernetesContainers.DeploymentWait = false
-            Octopus.Action.SubstituteInFiles.TargetFiles = "k8s/kustomize/base/kustomization.yaml"
-        }
     }
 }
 
-step "kustomize-child" {
-    name = "Kustomize Parent"
-    package_requirement = "AfterPackageAcquisition"
+step "kustomize-new" {
+    name = "Kustomize new"
     properties = {
         Octopus.Action.TargetRoles = "AksCluster"
     }
 
-    action "kustomize-child" {
-        name = "Kustomize Child One"
+    action {
+        action_type = "Octopus.Kubernetes.Kustomize"
         properties = {
+            Octopus.Action.GitRepository.Source = "Project"
+            Octopus.Action.Kubernetes.DeploymentTimeout = "180"
+            Octopus.Action.Kubernetes.Kustomize.OverlayPath = "k8s/kustomize/overlays/#{Octopus.Environment.Name}"
+            Octopus.Action.Kubernetes.ResourceStatusCheck = "True"
             Octopus.Action.RunOnServer = "true"
+            Octopus.Action.SubstituteInFiles.TargetFiles = "k8s/kustomize/base/kustomization.yaml"
             OctopusUseBundledTooling = "False"
         }
         worker_pool_variable = ""
@@ -61,21 +62,59 @@ step "kustomize-child" {
             image = "octopuslabs/k8s-workertools:latest"
         }
 
+        packages "nginx" {
+            acquisition_location = "NotAcquired"
+            feed = "docker"
+            package_id = "nginx"
+            properties = {
+                Extract = "False"
+                Purpose = ""
+                SelectionMode = "immediate"
+            }
+        }
+    }
+}
+
+step "kustomize-child" {
+    name = "Kustomize Parent"
+    properties = {
+        Octopus.Action.TargetRoles = "AksCluster"
+    }
+
+    action "kustomize-child" {
         action_type = "Octopus.Kubernetes.Kustomize"
+        is_disabled = true
+        name = "Kustomize Child One"
         properties = {
             Octopus.Action.GitRepository.Source = "Project"
-            Octopus.Action.Kubernetes.DeploymentTimeout = 180
+            Octopus.Action.Kubernetes.DeploymentTimeout = "180"
             Octopus.Action.Kubernetes.Kustomize.OverlayPath = "k8s/kustomize/overlays/#{Octopus.Environment.Name}"
-            Octopus.Action.Kubernetes.ResourceStatusCheck = true
-            Octopus.Action.KubernetesContainers.DeploymentWait = false
+            Octopus.Action.Kubernetes.ResourceStatusCheck = "True"
+            Octopus.Action.KubernetesContainers.DeploymentWait = "False"
+            Octopus.Action.RunOnServer = "true"
             Octopus.Action.SubstituteInFiles.TargetFiles = "k8s/kustomize/base/kustomization.yaml"
+            OctopusUseBundledTooling = "False"
+        }
+        worker_pool_variable = ""
+
+        container {
+            feed = "docker"
+            image = "octopuslabs/k8s-workertools:latest"
         }
     }
 
     action "kustomize-child-two" {
+        action_type = "Octopus.Kubernetes.Kustomize"
+        is_disabled = true
         name = "Kustomize Child Two"
         properties = {
+            Octopus.Action.GitRepository.Source = "Project"
+            Octopus.Action.Kubernetes.DeploymentTimeout = "180"
+            Octopus.Action.Kubernetes.Kustomize.OverlayPath = "k8s/kustomize/overlays/#{Octopus.Environment.Name}"
+            Octopus.Action.Kubernetes.ResourceStatusCheck = "True"
+            Octopus.Action.KubernetesContainers.DeploymentWait = "False"
             Octopus.Action.RunOnServer = "true"
+            Octopus.Action.SubstituteInFiles.TargetFiles = "k8s/kustomize/base/kustomization.yaml"
             OctopusUseBundledTooling = "False"
         }
         worker_pool = "hosted-ubuntu"
@@ -84,29 +123,25 @@ step "kustomize-child" {
             feed = "docker"
             image = "octopuslabs/k8s-workertools:latest"
         }
-
-        action_type = "Octopus.Kubernetes.Kustomize"
-        properties = {
-            Octopus.Action.GitRepository.Source = "Project"
-            Octopus.Action.Kubernetes.DeploymentTimeout = 180
-            Octopus.Action.Kubernetes.Kustomize.OverlayPath = "k8s/kustomize/overlays/#{Octopus.Environment.Name}"
-            Octopus.Action.Kubernetes.ResourceStatusCheck = true
-            Octopus.Action.KubernetesContainers.DeploymentWait = false
-            Octopus.Action.SubstituteInFiles.TargetFiles = "k8s/kustomize/base/kustomization.yaml"
-        }
     }
 }
 
 step "kustomize-external-vcs" {
     name = "Kustomize - External VCS"
-    package_requirement = "AfterPackageAcquisition"
     properties = {
         Octopus.Action.TargetRoles = "AksCluster"
     }
 
     action {
+        action_type = "Octopus.Kubernetes.Kustomize"
+        is_disabled = true
         properties = {
+            Octopus.Action.Kubernetes.DeploymentTimeout = "180"
+            Octopus.Action.Kubernetes.Kustomize.OverlayPath = "k8s/kustomize/overlays/#{Octopus.Environment.Name}"
+            Octopus.Action.Kubernetes.ResourceStatusCheck = "True"
+            Octopus.Action.KubernetesContainers.DeploymentWait = "False"
             Octopus.Action.RunOnServer = "true"
+            Octopus.Action.SubstituteInFiles.TargetFiles = "k8s/kustomize/base/kustomization.yaml"
             OctopusUseBundledTooling = "False"
         }
         worker_pool_variable = ""
@@ -121,15 +156,6 @@ step "kustomize-external-vcs" {
             git_credential_id = "GitCredentials-1"
             git_credential_type = "Library"
             repository_uri = "https://github.com/tleed5/OctoPetShop.git"
-        }
-
-        action_type = "Octopus.Kubernetes.Kustomize"
-        properties = {
-            Octopus.Action.Kubernetes.DeploymentTimeout = 180
-            Octopus.Action.Kubernetes.Kustomize.OverlayPath = "k8s/kustomize/overlays/#{Octopus.Environment.Name}"
-            Octopus.Action.Kubernetes.ResourceStatusCheck = true
-            Octopus.Action.KubernetesContainers.DeploymentWait = false
-            Octopus.Action.SubstituteInFiles.TargetFiles = "k8s/kustomize/base/kustomization.yaml"
         }
     }
 }
