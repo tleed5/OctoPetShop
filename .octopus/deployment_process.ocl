@@ -157,8 +157,17 @@ step "kustomize-external-vcs" {
 
     action {
         action_type = "kustomize"
+        properties = {
+            Octopus.Action.RunOnServer = "true"
+            OctopusUseBundledTooling = "False"
+        }
         step_package_version = "2.0.2"
         worker_pool_variable = ""
+
+        container {
+            feed = "docker"
+            image = "octopuslabs/k8s-workertools:latest"
+        }
 
         git_dependencies {
             default_branch = "master"
