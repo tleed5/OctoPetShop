@@ -105,11 +105,17 @@ step "kustomize-external-vcs" {
             Octopus.Action.Kubernetes.Kustomize.OverlayPath = "k8s/kustomize/overlays/#{Octopus.Environment.Name}"
             Octopus.Action.Kubernetes.ResourceStatusCheck = "True"
             Octopus.Action.KubernetesContainers.DeploymentWait = "False"
-            Octopus.Action.RunOnServer = "false"
+            Octopus.Action.RunOnServer = "true"
             Octopus.Action.Script.ScriptSource = "GitRepository"
             Octopus.Action.SubstituteInFiles.TargetFiles = "k8s/kustomize/base/kustomization.yaml"
+            OctopusUseBundledTooling = "False"
         }
         worker_pool_variable = ""
+
+        container {
+            feed = "docker"
+            image = "octopuslabs/k8s-workertools:latest"
+        }
 
         git_dependencies {
             default_branch = "master"
